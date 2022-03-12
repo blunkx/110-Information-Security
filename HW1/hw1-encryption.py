@@ -2,67 +2,79 @@
 # HW1
 # Encryption B10830020
 
+import click
+import sys
 
-def caesar(plainText, key):
-    cipherText = ""
-    for c in plainText:
+
+def caesar(plain_text: str, key: int):
+    try:
+        key = int(key)
+    except ValueError:
+        print("key must be an integer")
+        sys.exit()
+    cipher_text = ""
+    for c in plain_text:
         if c.isalpha():
-            cipherASCII = ord(c) + key
-            if cipherASCII > ord("z"):
-                cipherASCII -= 26
-            cipherChar = chr(cipherASCII)
-            cipherText += cipherChar
+            cipher_ascii = ord(c) + key
+            if c.isupper and cipher_ascii > ord("Z"):
+                cipher_ascii = (cipher_ascii - ord("A")) % 26 + ord("A")
+            elif c.islower and cipher_ascii > ord("z"):
+                cipher_ascii = (cipher_ascii - ord("a")) % 26 + ord("a")
+            cipher_char = chr(cipher_ascii)
+            cipher_text += cipher_char
         else:
-            cipherText += c
+            cipher_text += c
 
-    return cipherText
+    return cipher_text
 
 
-def playfair(plainText:str, key):
-    plainText=str.upper(plainText)
+def playfair(plain_text: str, key: str):
+    plain_text = str.upper(plain_text)
+    key = str.upper(key)
     # add x if letter are same and along in the end
     plainList = []
-    if len(plainText) % 2 != 0:
-        plainText += "X"
-    for index in range(0, len(plainText) + 1, 2):
-        if index < len(plainText) - 1:
-            if plainText[index] == plainText[index + 1]:
-                plainList.append((plainText[index], "X"))
+    if len(plain_text) % 2 != 0:
+        plain_text += "X"
+    for index in range(0, len(plain_text) + 1, 2):
+        if index < len(plain_text) - 1:
+            if plain_text[index] == plain_text[index + 1]:
+                plainList.append((plain_text[index], "X"))
             else:
-                plainList.append((plainText[index], plainText[index + 1]))
+                plainList.append((plain_text[index], plain_text[index + 1]))
 
     # build key list
-    keyList = []
+    key_list = []
     for c in key:
-        if c not in keyList:
+        if c not in key_list:
             if c == "J":
-                keyList.append("I")
+                key_list.append("I")
             else:
-                keyList.append(c)
+                key_list.append(c)
 
     for index in range(ord("A"), ord("Z") + 1):
-        if chr(index) not in keyList:
+        if chr(index) not in key_list:
             if chr(index) == "J":
-                if "I" not in keyList:
-                    keyList.append("I")
+                if "I" not in key_list:
+                    key_list.append("I")
             else:
-                keyList.append(chr(index))
+                key_list.append(chr(index))
 
     # build key matrix
-    keyMatrix = [[0 for i in range(5)] for j in range(5)]
+    key_matrix = [[0 for i in range(5)] for j in range(5)]
     for i in range(0, 5):
         for j in range(0, 5):
-            keyMatrix[i][j] = keyList.pop(0)
+            key_matrix[i][j] = key_list.pop(0)
 
     def indexLocator(k):
         i = 0
-        for row in keyMatrix:
+        for row in key_matrix:
             j = 0
             for c in row:
                 if c == k:
                     return (i, j)
                 j += 1
             i += 1
+        print("allocation error in indexLocator", k)
 
     cipherList = []
 
@@ -83,7 +95,7 @@ def playfair(plainText:str, key):
             i2 = (p2Location[0] + 1) % 5
             j2 = p2Location[1]
 
-            cipherList.append((keyMatrix[i1][j1], keyMatrix[i2][j2]))
+            cipherList.append((key_matrix[i1][j1], key_matrix[i2][j2]))
 
         elif p1Location[0] == p2Location[0]:
             i1 = p1Location[0]
@@ -91,7 +103,7 @@ def playfair(plainText:str, key):
 
             i2 = p2Location[0]
             j2 = (p2Location[1] + 1) % 5
-            cipherList.append((keyMatrix[i1][j1], keyMatrix[i2][j2]))
+            cipherList.append((key_matrix[i1][j1], key_matrix[i2][j2]))
 
         else:
             i1 = p1Location[0]
@@ -100,28 +112,19 @@ def playfair(plainText:str, key):
             i2 = p2Location[0]
             j2 = p2Location[1]
 
-            cipherList.append((keyMatrix[i1][j2], keyMatrix[i2][j1]))
+            cipherList.append((key_matrix[i1][j2], key_matrix[i2][j1]))
 
-    cipherText = ""
+    cipher_text = ""
     for cipherPair in cipherList:
-        cipherText += cipherPair[0] + cipherPair[1]
-    return cipherText
+        cipher_text += cipherPair[0] + cipherPair[1]
+    return cipher_text
 
 
-def vernam(plainText, key):
+def vernam(plain_text: str, key: str):
 
-    # plainBin = []
-    # for c in plainText:
-    #         plainBin.append(ord(c))
+    key += plain_text[: len(plain_text) - len(key)]
 
-    # for i in range(len(plainBin) - len(keyBin)):
-    #     keyBin.append(keyBin[i])
-
-    while len(plainText) > len(key):
-        key += plainText
-        break
-
-    plainBin = [ord(c) for c in plainText]
+    plainBin = [ord(c) for c in plain_text]
 
     keyBin = [ord(c) for c in key]
 
@@ -131,65 +134,97 @@ def vernam(plainText, key):
 
     # return cipherBin
 
-    cipherText = ""
+    cipher_text = ""
     for i in cipherBin:
-        cipherText += chr(i)
+        cipher_text += chr(i)
 
-    return cipherText
+    return cipher_text
 
 
-def railfence(plainText, key):
+def railfence(plain_text: str, key):
+    try:
+        key = int(key)
+    except ValueError:
+        print("key must be an integer")
+        sys.exit()
 
     # build fence
-    fence = [["#"] * len(plainText) for _ in range(key)]
+    fence = [["#"] * len(plain_text) for _ in range(key)]
     rail = 0
-    for x in range(len(plainText)):
-        fence[rail][x] = plainText[x]
+    for x in range(len(plain_text)):
+        fence[rail][x] = plain_text[x]
         if rail >= key - 1:
             dr = -1
         elif rail <= 0:
             dr = 1
         rail += dr
 
-    cipherText = ""
+    cipher_text = ""
 
     # read fence
     for rail in range(key):
-        for x in range(len(plainText)):
+        for x in range(len(plain_text)):
             if fence[rail][x] != "#":
-                cipherText += fence[rail][x]
+                cipher_text += fence[rail][x]
 
-    return cipherText
+    return cipher_text
 
 
-def row_transposition(plainText, key):
+def row_transposition(plain_text: str, key: str):
 
-    while len(plainText) % len(key) != 0:
-        plainText += " "
+    while len(plain_text) % len(key) != 0:
+        plain_text += " "
 
-    chunks = [plainText[i : i + len(key)] for i in range(0, len(plainText), len(key))]
+    chunks = [plain_text[i : i + len(key)] for i in range(0, len(plain_text), len(key))]
 
     order = ["".join(sorted(key)).find(x) for x in key]
 
-    plantextMap = map(lambda k: [c for (y, c) in sorted(zip(order, k))], chunks)
+    plantext_map = map(lambda k: [c for (y, c) in sorted(zip(order, k))], chunks)
 
     matrix = []
-    for l in plantextMap:
+    for l in plantext_map:
         matrix.append(l)
 
-    cipherText = ""
+    cipher_text = ""
     for i in range(len(key)):
         for l in matrix:
-            cipherText += l[i]
-    return cipherText
+            cipher_text += l[i]
+    return cipher_text
 
 
-print(caesar("hello word", 3))
+# print(caesar("helloword", 3))
 
-print(playfair("HELLOWORD", "HEY"))
+# print(playfair("helloword", "hey"))
 
-print(vernam(vernam("hello word", "hey"), "hey"))
+# print(vernam(vernam("hel", "hey"), "hey"))
 
-print(railfence("hello word", 3))
+# print(railfence("helloword", 3))
 
-print(row_transposition("hello word", "hey"))
+# print(row_transposition("helloword", "hey"))
+
+
+@click.command()
+@click.option("-m", "--method", "method", required=True, help="The encryption method")
+@click.option(
+    "-i",
+    "--input",
+    "input",
+    default="plaintext",
+    required=True,
+    help="The plain text to encrypt",
+)
+@click.option("-k", "--key", "key", required=True, help="The encryption key")
+def main(method, input, key):
+    dispatcher = {
+        "caesar": caesar,
+        "playfair": playfair,
+        "vernam": vernam,
+        "railfence": railfence,
+        "row": row_transposition,
+    }
+    print(dispatcher[method](input, key))
+
+
+if __name__ == "__main__":
+    # python hw1-encryption.py -m playfair -i helloword -k hey
+    main()
