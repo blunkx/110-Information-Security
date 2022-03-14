@@ -3,6 +3,7 @@
 # Decryption B10830002
 import click
 import sys
+import math
 from pathlib import Path
 
 
@@ -129,12 +130,48 @@ def vernam(key: str, ciphertext: str) -> str:
     return plaintext
 
 
-def railfence():
-    return "railfence"
+def railfence(key: int, ciphertext: str) -> str:
+    try:
+        key = int(key)
+    except ValueError:
+        print("Key error")
+        sys.exit()
+    group_size = key * 2 - 2
+    row_coor = []
+    for i in range(len(ciphertext)):
+        j = i % group_size
+        if j >= key:
+            j = key - (j % key + 1) - 1
+        row_coor.append((j, i))
+    row_coor.sort(key=lambda tup: tup[1])
+    row_coor.sort(key=lambda tup: tup[0])
+    order = [i[1] for i in row_coor]
+    text = list(ciphertext)
+    plaintext = dict(zip(order, text))
+    plaintext = "".join(dict(sorted(plaintext.items())).values())
+    return plaintext
 
 
-def row():
-    return "row"
+def row(key: str, ciphertext: str) -> str:
+    key_len = len(key)
+    row_num = math.ceil(len(ciphertext) / key_len)
+    cols = [
+        list(ciphertext[i : i + row_num]) for i in range(0, len(ciphertext), row_num)
+    ]
+    col_order = dict(zip(list(range(1, key_len + 1)), cols))
+    rows = [[] for i in range(row_num)]
+    for i in key:
+        try:
+            i = int(i)
+        except ValueError:
+            print("Key error")
+            sys.exit()
+        for row, col in zip(rows, col_order[i]):
+            row.append(col)
+    plaintext = ""
+    for row in rows:
+        plaintext += "".join(row)
+    return plaintext
 
 
 @click.command()
@@ -163,4 +200,7 @@ if __name__ == "__main__":
     # python3 hw1-decryption.py -m playfair -i RSCLKUVUQKFW -k youlooksnice
     # python3 hw1-decryption.py -m caesar -i helloworld -k 4
     # python3 hw1-decryption.py -m vernam -i ABDBHBD -k a
+    # python3 hw1-decryption.py -m railfence -i GsGsekfrekeoe -k 3
+    # python3 hw1-decryption.py -m railfence -i MEMATRHTGPRYETEFETEOAAT -k 2
+    # python3 hw1-decryption.py -m railfence -i WECRUOERDSOEERNTNEAIVDAC -k 3
     main()
