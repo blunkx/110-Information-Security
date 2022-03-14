@@ -117,8 +117,16 @@ def playfair(key: str, ciphertext: str) -> str:
     return decryption(upper_table, ciphertext)
 
 
-def vernam():
-    return "vernam"
+def vernam(key: str, ciphertext: str) -> str:
+    key = key.upper()
+    ciphertext = ciphertext.upper()
+    upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    plaintext = []
+    for i, j in zip(ciphertext, range(len(ciphertext))):
+        plaintext.append(upper[(upper.index(i) ^ upper.index(key[j])) % 26])
+        key += plaintext[-1]
+    plaintext = "".join(plaintext)
+    return plaintext
 
 
 def railfence():
@@ -154,4 +162,5 @@ def main(method, inp, key):
 if __name__ == "__main__":
     # python3 hw1-decryption.py -m playfair -i RSCLKUVUQKFW -k youlooksnice
     # python3 hw1-decryption.py -m caesar -i helloworld -k 4
+    # python3 hw1-decryption.py -m vernam -i ABDBHBD -k a
     main()
