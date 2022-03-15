@@ -124,19 +124,18 @@ def vernam(plain_text: str, key: str):
 
     key += plain_text[: len(plain_text) - len(key)]
 
-    plainBin = [ord(c) for c in plain_text]
+    plain_bin = [ord(c.upper()) - ord("A") for c in plain_text]
 
-    keyBin = [ord(c) for c in key]
+    key_bin = [ord(c.upper()) - ord("A") for c in key]
 
     cipherBin = [
-        (plainBin[i] ^ keyBin[i]) for i in range(len(plainBin))
+        (plain_bin[i] ^ key_bin[i]) for i in range(len(plain_bin))
     ]  # XOR vernam operation
 
     # return cipherBin
-
     cipher_text = ""
     for i in cipherBin:
-        cipher_text += chr(i)
+        cipher_text += chr(i + ord("A"))
 
     return cipher_text
 
