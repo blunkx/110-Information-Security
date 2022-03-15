@@ -6,27 +6,26 @@ import sys
 import math
 
 
-def caesar(shift: int, plaintext: str) -> str:
+def caesar(shift: int, ciphertext: str) -> str:
     try:
         shift = int(shift)
     except ValueError:
         print("Shift value must be an integer")
         sys.exit()
-    shift *= -1
     upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     lower = "abcdefghijklmnopqrstuvwxyz"
     digit = "0123456789"
-    ciphertext = ""
-    for i in plaintext:
+    plaintext = ""
+    for i in ciphertext:
         if str.isupper(i):
-            ciphertext += upper[(upper.index(i) + shift) % 26]
+            plaintext += upper[(upper.index(i) - shift) % 26]
         elif str.islower(i):
-            ciphertext += lower[(lower.index(i) + shift) % 26]
+            plaintext += lower[(lower.index(i) - shift) % 26]
         elif str.isdigit(i):
-            ciphertext += digit[(digit.index(i) + shift) % 10]
+            plaintext += digit[(digit.index(i) - shift) % 10]
         else:
-            ciphertext += i
-    return ciphertext
+            plaintext += i
+    return plaintext
 
 
 def playfair(key: str, ciphertext: str) -> str:
@@ -169,10 +168,13 @@ def main(method, inp, key):
 
 
 if __name__ == "__main__":
-    # python3 hw1-decryption.py -m playfair -i RSCLKUVUQKFW -k youlooksnice
-    # python3 hw1-decryption.py -m caesar -i lippsasvph -k 4
-    # python3 hw1-decryption.py -m vernam -i ABDBHBD -k a
+    # python3 hw1-decryption.py -m playfair -i GFFGBMGFNFAW -k GravityFalls
+    # python3 hw1-decryption.py -m caesar -i xiwxefghjsvgeiwev -k 4
+    # python3 hw1-decryption.py -m vernam -i ABDBHBD -k A
     # python3 hw1-decryption.py -m railfence -i GsGsekfrekeoe -k 3
+    # python3 hw1-decryption.py -m railfence -i gsgsekfrekeoe -k 3
     # python3 hw1-decryption.py -m railfence -i MEMATRHTGPRYETEFETEOAAT -k 2
     # python3 hw1-decryption.py -m railfence -i WECRUOERDSOEERNTNEAIVDAC -k 3
+    # python3 hw1-decryption.py -m row -i helloworld -k 15423
+    # python3 hw1-decryption.py -m row -i hwllodlreo -k 15423
     main()
