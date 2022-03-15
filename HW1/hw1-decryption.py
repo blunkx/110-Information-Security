@@ -3,30 +3,10 @@
 # Decryption B10830002
 import click
 import sys
-from pathlib import Path
+import math
 
 
-def read_file(file_name) -> str:
-    file_path = Path(__file__).parent.resolve() / file_name
-    try:
-        with open(file_path) as input_file:
-            return input_file.read()
-    except Exception:
-        print("Failed to open!")
-        sys.exit()
-
-
-def write_file(file_name: str, text: str) -> None:
-    file_path = Path(__file__).parent.resolve() / file_name
-    try:
-        with open(file_path, "w") as out:
-            out.write(text)
-    except Exception:
-        print("Failed to open!")
-        sys.exit()
-
-
-def caesar(shift: int, plaintext: str) -> str:
+def caesar(shift: int, ciphertext: str) -> str:
     try:
         shift = int(shift)
     except ValueError:
@@ -35,17 +15,17 @@ def caesar(shift: int, plaintext: str) -> str:
     upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     lower = "abcdefghijklmnopqrstuvwxyz"
     digit = "0123456789"
-    ciphertext = ""
-    for i in plaintext:
+    plaintext = ""
+    for i in ciphertext:
         if str.isupper(i):
-            ciphertext += upper[(upper.index(i) + shift) % 26]
+            plaintext += upper[(upper.index(i) - shift) % 26]
         elif str.islower(i):
-            ciphertext += lower[(lower.index(i) + shift) % 26]
+            plaintext += lower[(lower.index(i) - shift) % 26]
         elif str.isdigit(i):
-            ciphertext += digit[(digit.index(i) + shift) % 10]
+            plaintext += digit[(digit.index(i) - shift) % 10]
         else:
-            ciphertext += i
-    return ciphertext
+            plaintext += i
+    return plaintext
 
 
 def playfair(key: str, ciphertext: str) -> str:
@@ -71,12 +51,10 @@ def playfair(key: str, ciphertext: str) -> str:
         table += upper
         for i in table:
             upper_table[i] = (table.index(i) // 5, table.index(i) % 5)
+            upper_table[(table.index(i) // 5, table.index(i) % 5)] = i
         return upper_table
 
     def decryption(table: dict, ciphertext: str) -> str:
-        def get_key_by_val(d: dict, value):
-            return list(d.keys())[list(d.values()).index(value)]
-
         try:
             if len(ciphertext) % 2 != 0:
                 raise
@@ -92,23 +70,17 @@ def playfair(key: str, ciphertext: str) -> str:
             if table[pair[0]][1] == table[pair[1]][1]:
                 for alphabet in pair:
                     plaintext.append(
-                        get_key_by_val(
-                            table, ((table[alphabet][0] - 1) % 5, table[alphabet][1])
-                        )
+                        table[((table[alphabet][0] - 1) % 5, table[alphabet][1])]
                     )
             elif table[pair[0]][0] == table[pair[1]][0]:
                 for alphabet in pair:
                     plaintext.append(
-                        get_key_by_val(
-                            table, (table[alphabet][0], (table[alphabet][1] - 1) % 5)
-                        )
+                        table[(table[alphabet][0], (table[alphabet][1] - 1) % 5)]
                     )
             else:
                 for i in range(2):
                     plaintext.append(
-                        get_key_by_val(
-                            table, (table[pair[i]][0], table[pair[(i + 1) % 2]][1])
-                        )
+                        table[(table[pair[i]][0], table[pair[(i + 1) % 2]][1])]
                     )
         plaintext = "".join(plaintext)
         return plaintext
@@ -117,16 +89,60 @@ def playfair(key: str, ciphertext: str) -> str:
     return decryption(upper_table, ciphertext)
 
 
-def vernam():
-    return "vernam"
+def vernam(key: str, ciphertext: str) -> str:
+    key = key.upper()
+    ciphertext = ciphertext.upper()
+    upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    plaintext = []
+    for i, j in zip(ciphertext, range(len(ciphertext))):
+        plaintext.append(upper[(upper.index(i) ^ upper.index(key[j])) % 26])
+        key += plaintext[-1]
+    plaintext = "".join(plaintext)
+    return plaintext
 
 
-def railfence():
-    return "railfence"
+def railfence(key: int, ciphertext: str) -> str:
+    try:
+        key = int(key)
+    except ValueError:
+        print("Key error")
+        sys.exit()
+    group_size = key * 2 - 2
+    row_coor = []
+    for i in range(len(ciphertext)):
+        j = i % group_size
+        if j >= key:
+            j = key - (j % key + 1) - 1
+        row_coor.append((j, i))
+    row_coor.sort(key=lambda tup: tup[1])
+    row_coor.sort(key=lambda tup: tup[0])
+    order = [i[1] for i in row_coor]
+    text = list(ciphertext)
+    plaintext = dict(zip(order, text))
+    plaintext = "".join(dict(sorted(plaintext.items())).values())
+    return plaintext
 
 
-def row():
-    return "row"
+def row(key: str, ciphertext: str) -> str:
+    key_len = len(key)
+    row_num = math.ceil(len(ciphertext) / key_len)
+    cols = [
+        list(ciphertext[i : i + row_num]) for i in range(0, len(ciphertext), row_num)
+    ]
+    col_order = dict(zip(list(range(1, key_len + 1)), cols))
+    rows = [[] for i in range(row_num)]
+    for i in key:
+        try:
+            i = int(i)
+        except ValueError:
+            print("Key error")
+            sys.exit()
+        for row, col in zip(rows, col_order[i]):
+            row.append(col)
+    plaintext = ""
+    for row in rows:
+        plaintext += "".join(row)
+    return plaintext
 
 
 @click.command()
@@ -152,6 +168,13 @@ def main(method, inp, key):
 
 
 if __name__ == "__main__":
-    # python3 hw1-decryption.py -m playfair -i RSCLKUVUQKFW -k youlooksnice
-    # python3 hw1-decryption.py -m caesar -i helloworld -k 4
+    # python3 hw1-decryption.py -m playfair -i GFFGBMGFNFAW -k GravityFalls
+    # python3 hw1-decryption.py -m caesar -i xiwxefghjsvgeiwev -k 4
+    # python3 hw1-decryption.py -m vernam -i ABDBHBD -k A
+    # python3 hw1-decryption.py -m railfence -i GsGsekfrekeoe -k 3
+    # python3 hw1-decryption.py -m railfence -i gsgsekfrekeoe -k 3
+    # python3 hw1-decryption.py -m railfence -i MEMATRHTGPRYETEFETEOAAT -k 2
+    # python3 hw1-decryption.py -m railfence -i WECRUOERDSOEERNTNEAIVDAC -k 3
+    # python3 hw1-decryption.py -m row -i helloworld -k 15423
+    # python3 hw1-decryption.py -m row -i hwllodlreo -k 15423
     main()
