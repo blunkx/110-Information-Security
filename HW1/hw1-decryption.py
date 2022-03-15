@@ -52,12 +52,10 @@ def playfair(key: str, ciphertext: str) -> str:
         table += upper
         for i in table:
             upper_table[i] = (table.index(i) // 5, table.index(i) % 5)
+            upper_table[(table.index(i) // 5, table.index(i) % 5)] = i
         return upper_table
 
     def decryption(table: dict, ciphertext: str) -> str:
-        def get_key_by_val(d: dict, value):
-            return list(d.keys())[list(d.values()).index(value)]
-
         try:
             if len(ciphertext) % 2 != 0:
                 raise
@@ -73,23 +71,17 @@ def playfair(key: str, ciphertext: str) -> str:
             if table[pair[0]][1] == table[pair[1]][1]:
                 for alphabet in pair:
                     plaintext.append(
-                        get_key_by_val(
-                            table, ((table[alphabet][0] - 1) % 5, table[alphabet][1])
-                        )
+                        table[((table[alphabet][0] - 1) % 5, table[alphabet][1])]
                     )
             elif table[pair[0]][0] == table[pair[1]][0]:
                 for alphabet in pair:
                     plaintext.append(
-                        get_key_by_val(
-                            table, (table[alphabet][0], (table[alphabet][1] - 1) % 5)
-                        )
+                        table[(table[alphabet][0], (table[alphabet][1] - 1) % 5)]
                     )
             else:
                 for i in range(2):
                     plaintext.append(
-                        get_key_by_val(
-                            table, (table[pair[i]][0], table[pair[(i + 1) % 2]][1])
-                        )
+                        table[(table[pair[i]][0], table[pair[(i + 1) % 2]][1])]
                     )
         plaintext = "".join(plaintext)
         return plaintext
