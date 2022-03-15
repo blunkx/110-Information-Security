@@ -4,27 +4,6 @@
 import click
 import sys
 import math
-from pathlib import Path
-
-
-def read_file(file_name) -> str:
-    file_path = Path(__file__).parent.resolve() / file_name
-    try:
-        with open(file_path) as input_file:
-            return input_file.read()
-    except Exception:
-        print("Failed to open!")
-        sys.exit()
-
-
-def write_file(file_name: str, text: str) -> None:
-    file_path = Path(__file__).parent.resolve() / file_name
-    try:
-        with open(file_path, "w") as out:
-            out.write(text)
-    except Exception:
-        print("Failed to open!")
-        sys.exit()
 
 
 def caesar(shift: int, plaintext: str) -> str:
@@ -33,6 +12,7 @@ def caesar(shift: int, plaintext: str) -> str:
     except ValueError:
         print("Shift value must be an integer")
         sys.exit()
+    shift *= -1
     upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     lower = "abcdefghijklmnopqrstuvwxyz"
     digit = "0123456789"
@@ -198,7 +178,7 @@ def main(method, inp, key):
 
 if __name__ == "__main__":
     # python3 hw1-decryption.py -m playfair -i RSCLKUVUQKFW -k youlooksnice
-    # python3 hw1-decryption.py -m caesar -i helloworld -k 4
+    # python3 hw1-decryption.py -m caesar -i lippsasvph -k 4
     # python3 hw1-decryption.py -m vernam -i ABDBHBD -k a
     # python3 hw1-decryption.py -m railfence -i GsGsekfrekeoe -k 3
     # python3 hw1-decryption.py -m railfence -i MEMATRHTGPRYETEFETEOAAT -k 2
