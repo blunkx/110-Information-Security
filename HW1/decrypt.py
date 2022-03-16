@@ -4,6 +4,7 @@
 import click
 import sys
 import math
+import argparse
 
 
 def caesar(shift: int, ciphertext: str) -> str:
@@ -145,18 +146,19 @@ def row(key: str, ciphertext: str) -> str:
     return plaintext
 
 
-@click.command()
-@click.option("-m", "--method", "method", required=True, help="The decryption method")
-@click.option(
-    "-i",
-    "--input",
-    "inp",
-    default="ciphertext",
-    required=True,
-    help="The ciphertext to decrypt",
-)
-@click.option("-k", "--key", "key", required=True, help="The decryption key")
-def main(method, inp, key):
+def get_parser():
+    parser = argparse.ArgumentParser(
+        prog="decrypt.py",
+        description="decrypt ciphertext by the method and key entered by the user",
+    )
+    parser.add_argument("-m", "--method", help="the decryption method")
+    parser.add_argument("-i", "--input", help="the cyphertext to decrypt")
+    parser.add_argument("-k", "--key", help="the decryption key")
+    return parser
+
+
+def main():
+    args = get_parser().parse_args()
     dispatcher = {
         "caesar": caesar,
         "playfair": playfair,
@@ -164,7 +166,7 @@ def main(method, inp, key):
         "railfence": railfence,
         "row": row,
     }
-    print(dispatcher[method](key, inp))
+    print(dispatcher[args.method](args.key, args.input))
 
 
 if __name__ == "__main__":
