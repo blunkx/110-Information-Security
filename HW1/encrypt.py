@@ -186,17 +186,6 @@ def row_transposition(plain_text: str, key: str):
     return cipher_text.upper()
 
 
-# print(caesar("helloword", 3))
-
-# print(playfair("helloword", "hey"))
-
-# print(vernam(vernam("hel", "hey"), "hey"))
-
-# print(railfence("helloword", 3))
-
-# print(row_transposition("helloword", "hey"))
-
-
 @click.command()
 @click.option("-m", "--method", "method", required=True, help="The encryption method")
 @click.option(
@@ -220,5 +209,4 @@ def main(method, input, key):
 
 
 if __name__ == "__main__":
-    # python hw1-encryption.py -m playfair -i helloword -k hey
     main()
