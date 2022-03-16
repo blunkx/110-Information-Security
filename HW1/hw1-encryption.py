@@ -15,11 +15,8 @@ def caesar(plain_text: str, key: int):
     cipher_text = ""
     for c in plain_text:
         if c.isalpha():
-            cipher_ascii = ord(c) + key
-            if c.isupper and cipher_ascii > ord("Z"):
-                cipher_ascii = (cipher_ascii - ord("A")) % 26 + ord("A")
-            elif c.islower and cipher_ascii > ord("z"):
-                cipher_ascii = (cipher_ascii - ord("a")) % 26 + ord("a")
+            cipher_ascii = ord(c.upper()) + key
+            cipher_ascii = (cipher_ascii - ord("A")) % 26 + ord("A")
             cipher_char = chr(cipher_ascii)
             cipher_text += cipher_char
         else:
@@ -124,18 +121,16 @@ def vernam(plain_text: str, key: str):
 
     key += plain_text[: len(plain_text) - len(key)]
 
-    plain_bin = [ord(c.upper()) - ord("A") for c in plain_text]
+    plain_bin = [ord(c.lower()) - ord("a") for c in plain_text]
 
-    key_bin = [ord(c.upper()) - ord("A") for c in key]
+    key_bin = [ord(c.lower()) - ord("a") for c in key]
 
-    cipherBin = [
-        (plain_bin[i] ^ key_bin[i]) for i in range(len(plain_bin))
-    ]  # XOR vernam operation
+    cipherBin = [(plain_bin[i] ^ key_bin[i]) for i in range(len(plain_bin))]
 
     # return cipherBin
     cipher_text = ""
     for i in cipherBin:
-        cipher_text += chr(i + ord("A"))
+        cipher_text += chr(i % 26 + ord("A"))
 
     return cipher_text
 
@@ -166,7 +161,7 @@ def railfence(plain_text: str, key):
             if fence[rail][x] != "#":
                 cipher_text += fence[rail][x]
 
-    return cipher_text
+    return cipher_text.upper()
 
 
 def row_transposition(plain_text: str, key: str):
@@ -188,7 +183,7 @@ def row_transposition(plain_text: str, key: str):
     for i in range(len(key)):
         for l in matrix:
             cipher_text += l[i]
-    return cipher_text
+    return cipher_text.upper()
 
 
 # print(caesar("helloword", 3))
