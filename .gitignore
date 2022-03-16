@@ -139,3 +139,4 @@ dmypy.json
 
 .vscode/settings.json
 .gitignore
+/test
