@@ -7,7 +7,6 @@ import argparse
 
 
 def caesar(plain_text: str, key: int):
-    print(key)
     try:
         key = int(key)
     except ValueError:
@@ -189,12 +188,12 @@ def row(plain_text: str, key: str):
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        prog="decrypt.py",
-        description="decrypt ciphertext by the method and key entered by the user",
+        prog="encrypt.py",
+        description="encrypt plaintext by the method and key entered by the user",
     )
-    parser.add_argument("-m", "--method", help="the decryption method")
-    parser.add_argument("-i", "--input", help="the cyphertext to decrypt")
-    parser.add_argument("-k", "--key", help="the decryption key")
+    parser.add_argument("-m", "--method", help="the encryption method")
+    parser.add_argument("-i", "--input", help="the plaintext to encrypt")
+    parser.add_argument("-k", "--key", help="the encryption key")
     return parser
 
 
