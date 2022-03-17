@@ -2,11 +2,12 @@
 # HW1
 # Encryption B10830020
 
-import click
 import sys
+import argparse
 
 
 def caesar(plain_text: str, key: int):
+    print(key)
     try:
         key = int(key)
     except ValueError:
@@ -164,7 +165,7 @@ def railfence(plain_text: str, key):
     return cipher_text.upper()
 
 
-def row_transposition(plain_text: str, key: str):
+def row(plain_text: str, key: str):
 
     while len(plain_text) % len(key) != 0:
         plain_text += " "
@@ -186,26 +187,27 @@ def row_transposition(plain_text: str, key: str):
     return cipher_text.upper()
 
 
-@click.command()
-@click.option("-m", "--method", "method", required=True, help="The encryption method")
-@click.option(
-    "-i",
-    "--input",
-    "input",
-    default="plaintext",
-    required=True,
-    help="The plain text to encrypt",
-)
-@click.option("-k", "--key", "key", required=True, help="The encryption key")
-def main(method, input, key):
+def get_parser():
+    parser = argparse.ArgumentParser(
+        prog="decrypt.py",
+        description="decrypt ciphertext by the method and key entered by the user",
+    )
+    parser.add_argument("-m", "--method", help="the decryption method")
+    parser.add_argument("-i", "--input", help="the cyphertext to decrypt")
+    parser.add_argument("-k", "--key", help="the decryption key")
+    return parser
+
+
+def main():
+    args = get_parser().parse_args()
     dispatcher = {
         "caesar": caesar,
         "playfair": playfair,
         "vernam": vernam,
         "railfence": railfence,
-        "row": row_transposition,
+        "row": row,
     }
-    print(dispatcher[method](input, key))
+    print(dispatcher[args.method](args.input, args.key))
 
 
 if __name__ == "__main__":
