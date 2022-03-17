@@ -1,7 +1,9 @@
-# Introduction to Information Security
-# HW1
-# Decryption B10830002
-import click
+#!/usr/bin/env python3
+"""
+Introduction to Information Security
+HW1
+Decryption B10830002
+"""
 import sys
 import math
 import argparse
@@ -26,7 +28,7 @@ def caesar(shift: int, ciphertext: str) -> str:
             plaintext += digit[(digit.index(i) - shift) % 10]
         else:
             plaintext += i
-    return plaintext
+    return plaintext.lower()
 
 
 def playfair(key: str, ciphertext: str) -> str:
@@ -84,7 +86,7 @@ def playfair(key: str, ciphertext: str) -> str:
                         table[(table[pair[i]][0], table[pair[(i + 1) % 2]][1])]
                     )
         plaintext = "".join(plaintext)
-        return plaintext
+        return plaintext.lower()
 
     upper_table = create_table(key)
     return decryption(upper_table, ciphertext)
@@ -99,7 +101,7 @@ def vernam(key: str, ciphertext: str) -> str:
         plaintext.append(upper[(upper.index(i) ^ upper.index(key[j])) % 26])
         key += plaintext[-1]
     plaintext = "".join(plaintext)
-    return plaintext
+    return plaintext.lower()
 
 
 def railfence(key: int, ciphertext: str) -> str:
@@ -121,7 +123,7 @@ def railfence(key: int, ciphertext: str) -> str:
     text = list(ciphertext)
     plaintext = dict(zip(order, text))
     plaintext = "".join(dict(sorted(plaintext.items())).values())
-    return plaintext
+    return plaintext.lower()
 
 
 def row(key: str, ciphertext: str) -> str:
@@ -131,7 +133,7 @@ def row(key: str, ciphertext: str) -> str:
         list(ciphertext[i : i + row_num]) for i in range(0, len(ciphertext), row_num)
     ]
     col_order = dict(zip(list(range(1, key_len + 1)), cols))
-    rows = [[] for i in range(row_num)]
+    rows = [[] for _ in range(row_num)]
     for i in key:
         try:
             i = int(i)
@@ -143,7 +145,7 @@ def row(key: str, ciphertext: str) -> str:
     plaintext = ""
     for row in rows:
         plaintext += "".join(row)
-    return plaintext
+    return plaintext.lower()
 
 
 def get_parser():
