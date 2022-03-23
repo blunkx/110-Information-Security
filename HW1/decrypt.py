@@ -62,7 +62,7 @@ def playfair(key: str, ciphertext: str) -> str:
             if len(ciphertext) % 2 != 0:
                 raise
         except Exception:
-            print("Ciphertext error")
+            print("Ciphertext length error")
             sys.exit()
         ciphertext = ciphertext.upper()
         ciphertext = ciphertext.replace(" ", "")
@@ -71,14 +71,14 @@ def playfair(key: str, ciphertext: str) -> str:
         plaintext = []
         for pair in pair_list:
             if table[pair[0]][1] == table[pair[1]][1]:
-                for alphabet in pair:
+                for letter in pair:
                     plaintext.append(
-                        table[((table[alphabet][0] - 1) % 5, table[alphabet][1])]
+                        table[((table[letter][0] - 1) % 5, table[letter][1])]
                     )
             elif table[pair[0]][0] == table[pair[1]][0]:
-                for alphabet in pair:
+                for letter in pair:
                     plaintext.append(
-                        table[(table[alphabet][0], (table[alphabet][1] - 1) % 5)]
+                        table[(table[letter][0], (table[letter][1] - 1) % 5)]
                     )
             else:
                 for i in range(2):

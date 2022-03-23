@@ -8,7 +8,7 @@ pip install -r requirements.txt
 Install all required packages using the package manager [pip].
 ### How to use?
 ```bash
-Python3 encrypt/decrypt.py –m [method] –i [input] –k [key]
+python3 encrypt/decrypt.py –m [method] –i [input] –k [key]
 ```
 -m : Encryption/decryption method.
 
@@ -26,3 +26,5 @@ Python3 encrypt/decrypt.py –m [method] –i [input] –k [key]
 
 ### Report
 [PDF](https://docs.google.com/document/d/1u9HDONgRzsCr-Fp47HMneMprQxHHhGH2PUbafW-xT5g/edit?usp=sharing)
+
+## HW2
