@@ -1,11 +1,10 @@
 # 110-Information-Security
-
-## HW1
 ### Installation
 ```bash
 pip install -r requirements.txt
 ```
 Install all required packages using the package manager [pip].
+## HW1
 ### How to use?
 ```bash
 python3 encrypt/decrypt.py –m [method] –i [input] –k [key]
