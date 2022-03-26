@@ -85,11 +85,11 @@ def playfair(key: str, ciphertext: str) -> str:
                     plaintext.append(
                         table[(table[pair[i]][0], table[pair[(i + 1) % 2]][1])]
                     )
-        plaintext = "".join(plaintext)
-        return plaintext.lower()
+        return "".join(plaintext)
 
     upper_table = create_table(key)
-    return decryption(upper_table, ciphertext)
+    plaintext = decryption(upper_table, ciphertext)
+    return plaintext.lower()
 
 
 def vernam(key: str, ciphertext: str) -> str:
