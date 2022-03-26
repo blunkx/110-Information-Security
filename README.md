@@ -4,7 +4,8 @@
 pip install -r requirements.txt
 ```
 Install all required packages using the package manager [pip].
-## HW1
+
+## HW1 Classical En/Decryption
 ### How to use?
 ```bash
 python3 encrypt/decrypt.py –m [method] –i [input] –k [key]
@@ -26,4 +27,12 @@ python3 encrypt/decrypt.py –m [method] –i [input] –k [key]
 ### Report
 [PDF](https://docs.google.com/document/d/1u9HDONgRzsCr-Fp47HMneMprQxHHhGH2PUbafW-xT5g/edit?usp=sharing)
 
-## HW2
+## HW2 DES 
+```bash
+python3 encrypt/decrypt.py –i [input] –k [key]
+```
+-i : The text you want to encrypt/decrypt.
+
+-k : The key used for ecryption/decryption.
+
+Both input and key must be entered in hexadecimal format, e.g. `0x123`.
