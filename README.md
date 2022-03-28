@@ -36,3 +36,6 @@ python3 encrypt/decrypt.py –i [input] –k [key]
 -k : The key used for ecryption/decryption.
 
 Both input and key must be entered in hexadecimal format, e.g. `0x123`.
+
+### Report
+[PDF](https://docs.google.com/document/d/1xD6Ee5z5ZayHnT6eqFuwDBt8VF11NrFuBdH6HtHVQIY/edit?usp=sharing)
