@@ -65,7 +65,6 @@ def pc1(key):
 
 
 def pc2(key):
-    assert len(key) == 56
 
     pc2 = [
         14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16,
@@ -75,7 +74,6 @@ def pc2(key):
     return [key[k - 1] for k in pc2]
 
 
-# 子密钥生成算法，由一个64位主密钥导出16个48位子密钥
 def key_generate(key):
     l, r = pc1(key)
     rotations = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
