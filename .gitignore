@@ -140,3 +140,4 @@ dmypy.json
 **/test/
 
 test.sh
+.DS_Store
