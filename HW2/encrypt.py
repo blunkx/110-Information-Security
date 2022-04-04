@@ -4,7 +4,6 @@ Introduction to Information Security
 HW2 DES
 Encryption by B10830002
 """
-import sys
 import argparse
 
 
