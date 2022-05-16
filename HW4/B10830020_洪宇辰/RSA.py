@@ -38,7 +38,8 @@ def is_high_level_passed(input: int):
         max_div += 1
     assert (2**max_div * e == input - 1)
 
-    def trialComposite(round_tester):
+    # one trial
+    def trial(round_tester):
         if pow(round_tester, e, input) == 1:
             return False
         for i in range(max_div):
@@ -46,10 +47,11 @@ def is_high_level_passed(input: int):
                 return False
         return True
 
+    # test 20 round
     round = 20
     for i in range(round):
         round_tester = random.randrange(2, input)
-        if trialComposite(round_tester):
+        if trial(round_tester):
             return False
     return True
 
@@ -76,6 +78,8 @@ def rsa_generate_key():
     p, q = generate_2_prime(1024)
     n = p * q
     phi = (p - 1) * (q - 1)
+
+    # generate e until relative prime with phi
     e = random.randrange(1, phi)
     while (True):
         if (math.gcd(e, phi) == 1):
@@ -103,9 +107,12 @@ def rsa_generate_key():
 
 # RSA encryption by given plaintext and key generate from rsa_generate_key
 def rsa_encrypt(plaintext: str, n: int, e: int):
-
     plain_bytes = str.encode(plaintext)
+
+    # encrypt each character which turned into byte
     cipher_bytes = [hex(pow(plain_byte, e, n)) for plain_byte in plain_bytes]
+
+    # concate and translate into base64 formate
     cipher_bytes = "".join(cipher_bytes)
     cipher_base64 = base64.b64encode(
         cipher_bytes.encode("ascii")).decode("ascii")
@@ -114,11 +121,13 @@ def rsa_encrypt(plaintext: str, n: int, e: int):
 
 # RSA decrption by given ciphertext(in base64) and private key generate from rsa_generate_key
 def rsa_decrypt(cipher_base64: str, n: int, d: int):
+    #  translate from base64 formate and aplit
     ciphertext = base64.b64decode(
         cipher_base64.encode("ascii")).decode("ascii")
 
     cipher_bytes = ["0x" + part for part in ciphertext.split("0x") if part]
 
+    # decrypt each character which turned into byte
     plaintext = [chr(pow(int(byte, 16), d, n)) for byte in cipher_bytes]
     plaintext = "".join(plaintext)
     return plaintext
@@ -126,8 +135,11 @@ def rsa_decrypt(cipher_base64: str, n: int, d: int):
 
 # RSA decrption in CRT mode by given ciphertext(in base64) and p,q,d generate from rsa_generate_key
 def rsa_crt(cipher_base64: str, p: int, q: int, d: int):
+    # dp = d mod (p-1)
     dp = pow(d, 1, (p - 1))
+    # dq = d mod (q-1)
     dq = pow(d, 1, (q - 1))
+    # qinv = p mod q
     qinv = pow(p, 1, q)
 
     def crt(c):
@@ -137,9 +149,12 @@ def rsa_crt(cipher_base64: str, p: int, q: int, d: int):
         m = m2 + h * q
         return m
 
+    #  translate from base64 formate and aplit
     ciphertext = base64.b64decode(
         cipher_base64.encode("ascii")).decode("ascii")
     cipher_bytes = ["0x" + part for part in ciphertext.split("0x") if part]
+
+    # decrypt each character which turned into byte
     plaintext = [chr(crt(int(byte, 16))) for byte in cipher_bytes]
     plaintext = "".join(plaintext)
     return plaintext
@@ -215,9 +230,10 @@ if __name__ == "__main__":
 
     ## test program
 
-    key = rsa_generate_key()
+    # key = rsa_generate_key()
     # ciphertext = rsa_encrypt('Hello RSA by b10830020', key['N'], key['e'])
     # print(ciphertext)
+    # print(ciphertext, key['N'], key['d'])
     # plaintext = rsa_decrypt(ciphertext, key['N'], key['d'])
     # print(plaintext)
     # plaintext = rsa_crt(ciphertext, key['p'], key['q'], key['d'])
