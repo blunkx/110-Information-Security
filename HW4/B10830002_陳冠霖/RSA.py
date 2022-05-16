@@ -68,7 +68,7 @@ def Miller_Rabin_primality_test(n: int, times: int) -> bool:
 
 def prime_num_gen(nbytes: int) -> int:
     """
-    Generate random number until find a prime number.
+    Generate random number until it's a prime number.
     Using the Miller-Rabin Primality Test to check if a random number is prime.
     Args:
         nbytes(int): The length of random number.
@@ -89,7 +89,7 @@ def rsa_key_gen():
     Args:
         None
     Returns:
-        rsa_key(dict): A dict containing RSA key pairs, including p, q, n, phi_n, e, d.
+        rsa_key(dict): A dict contain RSA key pairs, including p, q, n, phi_n, e, d.
     """
 
     def print_key(var_name: str, val: str) -> dict:
@@ -187,9 +187,6 @@ def rsa_decryption_crt(ciphertext: str, p: int, q: int, d):
         yq = square_and_multiply(xq, dq, q)
         cp = pow(q, -1, p)
         cq = pow(p, -1, q)
-        # t = pow(p, -1, q)
-        # u = abs(xq - xp) * t % q
-        # x = xp + p * u
         return (q * cp * yp + p * cq * yq) % (p * q)
 
     ciphertext = base64_to_str(ciphertext)
@@ -257,13 +254,14 @@ def main():
             )
         )
         return
+    """
     k = rsa_key_gen()
-    inp = "Hello World"
-    print(rsa_encryption(inp, k["n"], k["e"]))
-    print(rsa_decryption(rsa_encryption(inp, k["n"], k["e"]), k["n"], k["d"]))
-    print(
-        rsa_decryption_crt(rsa_encryption(inp, k["n"], k["e"]), k["p"], k["q"], k["d"])
-    )
+    inp = "Test without args, uncomment it to use!!"
+    ciphertext_base64 = rsa_encryption(inp, k["n"], k["e"])
+    print(ciphertext_base64)
+    print(rsa_decryption(ciphertext_base64, k["n"], k["d"]))
+    print(rsa_decryption_crt(ciphertext_base64, k["p"], k["q"], k["d"]))
+    """
 
 
 if __name__ == "__main__":
