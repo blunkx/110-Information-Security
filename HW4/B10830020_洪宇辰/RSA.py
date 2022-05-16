@@ -112,7 +112,7 @@ def rsa_encrypt(plaintext: str, n: int, e: int):
     # encrypt each character which turned into byte
     cipher_bytes = [hex(pow(plain_byte, e, n)) for plain_byte in plain_bytes]
 
-    # concate and translate into base64 formate
+    # concat  ate and translate into base64 formate
     cipher_bytes = "".join(cipher_bytes)
     cipher_base64 = base64.b64encode(
         cipher_bytes.encode("ascii")).decode("ascii")
@@ -121,7 +121,7 @@ def rsa_encrypt(plaintext: str, n: int, e: int):
 
 # RSA decrption by given ciphertext(in base64) and private key generate from rsa_generate_key
 def rsa_decrypt(cipher_base64: str, n: int, d: int):
-    #  translate from base64 formate and aplit
+    #  translate from base64 formate and split
     ciphertext = base64.b64decode(
         cipher_base64.encode("ascii")).decode("ascii")
 
