@@ -1,5 +1,4 @@
-from pydoc import plain
-import sys
+import math
 import argparse
 import random
 import base64
@@ -18,7 +17,7 @@ first_primes_list = [
 ]
 
 
-def is_low_level_passed(input):
+def is_low_level_passed(input: int):
     for divisor in first_primes_list:
         if input % divisor == 0 and divisor**2 <= input:
             return False
@@ -26,7 +25,7 @@ def is_low_level_passed(input):
         return True
 
 
-def is_high_level_passed(input):
+def is_high_level_passed(input: int):
     max_div = 0
     e = input - 1
     while e % 2 == 0:
@@ -66,92 +65,72 @@ def generate_2_prime(n):
     return p, q
 
 
-def gcd(a, b):
-    if a > b:
-        small = b
-    else:
-        small = a
-    for i in range(1, small + 1):
-        if ((a % i == 0) and (b % i == 0)):
-            gcd = i
-
-    return gcd
-
-
-def modInverse(a, m):
-    m0 = m
-    y = 0
-    x = 1
-
-    if (m == 1):
-        return 0
-
-    while (a > 1):
-
-        q = a // m
-
-        t = m
-
-        m = a % m
-        a = t
-        t = y
-
-        y = x - q * y
-        x = t
-
-    if (x < 0):
-        x = x + m0
-
-    return x
-
-
-def rsa_init():
+def rsa_generate_key():
     p, q = generate_2_prime(1024)
     n = p * q
     phi = (p - 1) * (q - 1)
     e = random.randrange(1, phi)
     while (True):
-        if (is_low_level_passed(e)):
-            if (is_high_level_passed(e)):
-                break
+        if (math.gcd(e, phi) == 1):
+            break
         e = random.randrange(1, phi)
 
-    d = modInverse(e, phi)
+    d = pow(e, -1, phi)
 
-    print(f'p = {p}')
-    print(f'q = {q}')
-    print(f'N = {n}')
-    print(f'phi = {phi}')
-    print(f'e = {e}')
-    print(f'd = {d}')
+    key = {
+        'p': p,
+        'q': q,
+        'N': n,
+        'phi': phi,
+        'e': e,
+        'd': d,
+    }
 
+    def _str_():
+        for k, v in key.items():
+            print(f'{k} = {v}')
 
-def rsa_encrypt(args):
-    decoded = args[0].encode()
-    msg = int.from_bytes(decoded, byteorder="big")
-    e = int(args[1])
-    n = int(args[2])
-    cipher = pow(msg, e, n)
-    cipher_byte = cipher.to_bytes((cipher.bit_length() + 7) // 8,
-                                  byteorder="big")
-    print(base64.b64encode(cipher_byte).decode())
-    # print(cipher)
-    return
+    _str_()
+    return key
 
 
-def rsa_decrypt(args):
-    decoded = base64.b64decode(args[0])
-    msg = int.from_bytes(decoded, byteorder="big")
-    d = int(args[1])
-    n = int(args[2])
-    plain = pow(msg, d, n)
-    print(plain)
-    return
+def rsa_encrypt(plaintext: str, n: int, e: int):
+
+    plain_bytes = str.encode(plaintext)
+    cipher_bytes = [hex(pow(plain_byte, e, n)) for plain_byte in plain_bytes]
+    cipher_bytes = ",".join(cipher_bytes)
+    cipher_base64 = base64.b64encode(
+        cipher_bytes.encode("ascii")).decode("ascii")
+    return cipher_base64
 
 
-def rsa_crt(msg, n, d):
-    decrypted = pow(msg, d, n)
-    return
+def rsa_decrypt(cipher_base64: str, n: int, d: int):
+    ciphertext = base64.b64decode(
+        cipher_base64.encode("ascii")).decode("ascii")
+    cipher_bytes = ciphertext.split(",")
+    plaintext = [chr(pow(int(byte, 16), d, n)) for byte in cipher_bytes]
+    plaintext = "".join(plaintext)
+    return plaintext
+
+
+def rsa_crt(cipher_base64: str, p: int, q: int, d: int):
+    dp = pow(d, 1, (p - 1))
+    dq = pow(d, 1, (q - 1))
+    qinv = pow(p, 1, q)
+
+    def crt(c):
+        m1 = pow(c, dp, p)
+        m2 = pow(c, dq, q)
+        h = (qinv * (m1 - m2)) % p
+        m = m2 + h * q
+        return m
+
+    ciphertext = base64.b64decode(
+        cipher_base64.encode("ascii")).decode("ascii")
+    cipher_bytes = ciphertext.split(",")
+    plaintext = [chr(crt(int(byte, 16))) for byte in cipher_bytes]
+    plaintext = "".join(plaintext)
+    return plaintext
 
 
 def get_parser():
@@ -165,21 +144,24 @@ def get_parser():
         help="Init mode",
         action='store_true',
     )
-    parser.add_argument("-e",
-                        "--encrypt",
-                        nargs=3,
-                        help="Encrypt mode need $RSA.py -e [msg] [N] [e]")
+    parser.add_argument(
+        "-e",
+        "--encrypt",
+        nargs=3,
+        help="Encrypt mode need $RSA.py -e [msg] [N] [e]",
+    )
     parser.add_argument(
         "-d",
         "--decrypt",
         nargs=3,
-        help="Decrypt mode need $RSA.py -d [ciphertext] [N] [d]")
+        help="Decrypt mode need $RSA.py -d [ciphertext] [N] [d]",
+    )
 
     parser.add_argument(
         "-CRT",
-        "--crt",
-        nargs=3,
-        help="CRT mode need $RSA.py -crt [ciphertext] [N] [d]",
+        "--CRT",
+        nargs=4,
+        help="CRT mode need $RSA.py -crt [ciphertext] [p] [q] [d]",
     )
     return parser
 
@@ -187,14 +169,38 @@ def get_parser():
 def main():
     args = get_parser().parse_args()
     if (args.init):
-        rsa_init()
+        rsa_generate_key()
     if (args.encrypt):
-        rsa_encrypt(args.encrypt)
+        print(
+            rsa_encrypt(
+                args.encrypt[0],
+                int(args.encrypt[1]),
+                int(args.encrypt[2]),
+            ))
     if (args.decrypt):
-        rsa_decrypt(args.decrypt)
-    if (args.crt):
-        rsa_crt(args.crt)
+        print(
+            rsa_decrypt(
+                args.decrypt[0],
+                int(args.decrypt[1]),
+                int(args.decrypt[2]),
+            ))
+    if (args.CRT):
+        print(
+            rsa_crt(
+                args.CRT[0],
+                int(args.CRT[1]),
+                int(args.CRT[2]),
+                int(args.CRT[3]),
+            ))
 
 
 if __name__ == "__main__":
     main()
+    # key = rsa_generate_key()
+    # ciphertext = rsa_encrypt('Hello RSA by b10830020', key['N'], key['e'])
+    # print(ciphertext)
+    # plaintext = rsa_decrypt(ciphertext, key['N'], key['d'])
+    # print(plaintext)
+    # plaintext = rsa_crt(ciphertext, key['p'], key['q'], key['d'])
+    # print(plaintext)
+    # print(ciphertext, key['p'], key['q'], key['d'])
