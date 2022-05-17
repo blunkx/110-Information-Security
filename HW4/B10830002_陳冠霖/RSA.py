@@ -119,7 +119,7 @@ def str_to_base64(inp: str) -> str:
     Returns:
         (str): A base64 encoded string.
     """
-    return base64.b64encode(inp.encode("ascii")).decode("ascii")
+    return base64.b64encode(bytes.fromhex(inp)).decode()
 
 
 def base64_to_str(inp: str) -> str:
@@ -131,7 +131,7 @@ def base64_to_str(inp: str) -> str:
     Returns:
         (str): An ascii string.
     """
-    return base64.b64decode(inp.encode("ascii")).decode("ascii")
+    return base64.b64decode(inp.encode()).hex()
 
 
 def rsa_encryption(plaintext: str, n: int, e: int) -> str:
@@ -145,9 +145,10 @@ def rsa_encryption(plaintext: str, n: int, e: int) -> str:
         (str): A base64 encoded string encrypted by RSA.
     """
     plaintext = [ord(c) for c in plaintext]
-    cipher = [hex(square_and_multiply(it, e, n))[2:] for it in plaintext]
-    cipher = ",".join(cipher)
-    return str_to_base64(cipher)
+    cipher = "".join(
+        [hex(square_and_multiply(it, e, n))[2:].zfill(256) for it in plaintext]
+    )
+    return str_to_base64("".join(cipher))
 
 
 def rsa_decryption(ciphertext: str, n: int, d: int):
@@ -161,7 +162,7 @@ def rsa_decryption(ciphertext: str, n: int, d: int):
         (str): plaintext.
     """
     ciphertext = base64_to_str(ciphertext)
-    ciphertext = ciphertext.split(",")
+    ciphertext = [ciphertext[i : i + 256] for i in range(0, len(ciphertext), 256)]
     plain = [square_and_multiply(int(it, 16), d, n) for it in ciphertext]
     return "".join(chr(it) for it in plain)
 
@@ -190,7 +191,7 @@ def rsa_decryption_crt(ciphertext: str, p: int, q: int, d):
         return (q * cp * yp + p * cq * yq) % (p * q)
 
     ciphertext = base64_to_str(ciphertext)
-    ciphertext = ciphertext.split(",")
+    ciphertext = [ciphertext[i : i + 256] for i in range(0, len(ciphertext), 256)]
     plain = [crt(int(it, 16), p, q, d) for it in ciphertext]
     return "".join(chr(it) for it in plain)
 
@@ -254,14 +255,13 @@ def main():
             )
         )
         return
-    """
-    k = rsa_key_gen()
-    inp = "Test without args, uncomment it to use!!"
-    ciphertext_base64 = rsa_encryption(inp, k["n"], k["e"])
-    print(ciphertext_base64)
-    print(rsa_decryption(ciphertext_base64, k["n"], k["d"]))
-    print(rsa_decryption_crt(ciphertext_base64, k["p"], k["q"], k["d"]))
-    """
+
+    # k = rsa_key_gen()
+    # inp = "Test the program without args, uncomment it to use!!"
+    # ciphertext_base64 = rsa_encryption(inp, k["n"], k["e"])
+    # print(ciphertext_base64)
+    # print(rsa_decryption(ciphertext_base64, k["n"], k["d"]))
+    # print(rsa_decryption_crt(ciphertext_base64, k["p"], k["q"], k["d"]))
 
 
 if __name__ == "__main__":
