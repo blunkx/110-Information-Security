@@ -39,3 +39,16 @@ Both input and key must be entered in hexadecimal format, e.g. `0x123`.
 
 ### Report
 [PDF](https://docs.google.com/document/d/1xD6Ee5z5ZayHnT6eqFuwDBt8VF11NrFuBdH6HtHVQIY/edit?usp=sharing)
+
+## HW4 RSA
+```bash
+python3 RSA.py [-i | -e [plaintext] [n] [e] | -d [ciphertext] [n] [d] | -CRT [ciphertext] [p] [q] [d]]
+```
+-i : key Generation for RSA
+
+-e : encrypt with given N and E
+
+-d : decrypt with given N and D
+
+-CRT : using CRT to speed up encryption
+
